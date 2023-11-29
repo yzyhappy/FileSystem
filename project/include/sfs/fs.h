@@ -5,6 +5,7 @@
 #include "sfs/disk.h"
 
 #include <stdint.h>
+#include <vector>
 
 class FileSystem {
 public:
@@ -38,6 +39,12 @@ private:
     // TODO: Internal helper functions
 
     // TODO: Internal member variables
+
+    // bitmap in memory
+    std::vector<uint32_t> bitmap;
+
+    // disk which the fs mounted on
+    Disk *mountedOn;
 
 public:
     static void debug(Disk *disk);
