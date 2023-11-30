@@ -12,8 +12,6 @@
 
 // Debug file system -----------------------------------------------------------
 
-// test git
-
 void FileSystem::debug(Disk *disk) {
     Block block;
 
@@ -191,14 +189,37 @@ bool FileSystem::remove(size_t inumber) {
     // Load inode information
 
     // 通过inumber直接获inode所在的inode block
-    int inodeBlockIndex = inumber / INODES_PER_BLOCK;
-    
+    int inodeBlockIndex = inumber / INODES_PER_BLOCK + 1;
+    inumber %= INODES_PER_BLOCK;
+    std::shared_ptr<Block> block = std::make_shared<Block>();
 
+    this->mountedOn->read(inodeBlockIndex, block->Data);
+    auto inodeInfo = block->Inodes[inumber];
     // Free direct blocks
 
-    // Free indirect blocks
+    //
+    char non[Disk::BLOCK_SIZE];
+    memset(non, 0, sizeof(non));
 
+    for (int i = 0; i < POINTERS_PER_INODE; i++) {
+        if (inodeInfo.Direct[i] != 0)
+        {
+            this->mountedOn->write(inodeInfo.Direct[i], non);
+        }
+    }
+    // Free indirect blocks
+    if (inodeInfo.Indirect != 0) {
+        std::shared_ptr<Block> block2 = std::make_shared<Block>();
+        this->mountedOn->read(inodeInfo.Indirect, block2->Data);
+        for (int i = 0; i < POINTERS_PER_BLOCK; i++) {
+            if (block2->Pointers[i] != 0) {
+                this->mountedOn->write(block2->Pointers[i], non);
+            }
+        }
+    }
     // Clear inode in inode table
+    block->Inodes[inumber].Valid = 0;
+    this->mountedOn->write(inodeBlockIndex, block->Data);
     return true;
 }
 
