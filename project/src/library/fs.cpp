@@ -227,6 +227,13 @@ bool FileSystem::remove(size_t inumber) {
 
 ssize_t FileSystem::stat(size_t inumber) {
     // Load inode information
+    uint32_t inodeBlock = inumber / INODES_PER_BLOCK;
+    inumber %= INODES_PER_BLOCK;
+    std::shared_ptr<Block> block = std::make_share<Block>();
+    this->mountedOn->read(inumber, block);
+
+
+    
     return 0;
 }
 
@@ -234,7 +241,10 @@ ssize_t FileSystem::stat(size_t inumber) {
 
 ssize_t FileSystem::read(size_t inumber, char *data, size_t length, size_t offset) {
     // Load inode information
-
+        uint32_t inodeBlock = inumber / INODES_PER_BLOCK;
+        inumber %= INODES_PER_BLOCK;
+        std::shared_ptr<Block> block = std::make_share<Block>();
+        this->mountedOn->read(inumber, block);
     // Adjust length
 
     // Read block and copy to data
@@ -245,7 +255,13 @@ ssize_t FileSystem::read(size_t inumber, char *data, size_t length, size_t offse
 
 ssize_t FileSystem::write(size_t inumber, char *data, size_t length, size_t offset) {
     // Load inode
-    
+    uint32_t inodeBlock = inumber / INODES_PER_BLOCK;
+    inumber %= INODES_PER_BLOCK;
+    std::shared_ptr<Block> block = std::make_share<Block>();
+    this->mountedOn->read(inumber, block);
     // Write block and copy to data
+
+    
+
     return 0;
 }
